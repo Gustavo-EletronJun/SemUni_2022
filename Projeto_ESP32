@@ -13,8 +13,11 @@
 
 // =======================================================================
 // --- Constantes Auxialires ---
-const char *ssid     = "Nome_da_rede";  //atribuir nome da rede WiFi
-const char *password = "Senha_da_rede"; //atribuir senha da rede
+const char *ssid     = "nome";  //atribuir nome da rede WiFi
+const char *password = "senha"; //atribuir senha da rede
+
+WiFiUDP ntpUDP;
+NTPClient ntp(ntpUDP);
 
 // =======================================================================
 // --- Objetos ---
@@ -38,6 +41,17 @@ String RL2_status = "OFF";
 String RL3_status = "OFF";
 String RL4_status = "OFF";
 
+// Variáveis auxiliares para os horários (liga/desliga)
+String ONhoraRL1 = "15:00:06";
+String OFFhoraRL1 = "15:05:00";
+String ONhoraRL2 = "15:01:00";
+String OFFhoraRL2 = "15:03:00";
+String ONhoraRL3 = "16:54:00";
+String OFFhoraRL3 = "16:58:00";
+String ONhoraRL4 = "16:57:00";
+String OFFhoraRL4 = "17:02:00";
+
+String hora_atual = "00:00:00";
 
 // Current time
 unsigned long currentTime = millis();
@@ -80,6 +94,16 @@ void setup()
 
   server.begin();                        //inicializa o servidor web
 
+  //NTP
+  ntp.begin();
+
+  //GMT em segundos
+  // +1 = 3600
+  // +8 = 28800
+  // -1 = -3600
+  // -3 = -10800 (BRASIL)
+  ntp.setTimeOffset(-10800);
+  //ntp.forceUpdate();    /* Atualização */
 }
 
 
@@ -96,8 +120,70 @@ void loop()
 
     delay(741);                          //741ms
   }
-   
+  ntp.forceUpdate();
+  hora_atual = ntp.getFormattedTime(); // NTP 
+  
+  if(ONhoraRL1 == hora_atual)         //liga Relé 1
+            {
+              RL1_status = "ON";                           //atualiza status
+              digitalWrite(relay1, HIGH);                  //ativa saída
+              Serial.println(hora_atual);
+             
+            } //RL1 ON
+  else if(OFFhoraRL1 == hora_atual)   //desliga Relé 1 
+            {          
+              RL1_status = "OFF";                          //atualiza status
+              digitalWrite(relay1, LOW);                   //desativa saída
+              Serial.println(hora_atual);
+              
+            } //end else if RL1 OFF
 
+  if(ONhoraRL2 == hora_atual)         //liga Relé 2
+            {
+              RL2_status = "ON";                           //atualiza status
+              digitalWrite(relay2, HIGH);                  //ativa saída
+              Serial.println(hora_atual);
+              
+            } //RL2 ON
+  else if(OFFhoraRL2 == hora_atual)   //desliga Relé 2 
+            {          
+              RL2_status = "OFF";                          //atualiza status
+              digitalWrite(relay2, LOW);                   //desativa saída
+              Serial.println(hora_atual);
+              
+            } //end else if RL2 OFF 
+
+  if(ONhoraRL3 == hora_atual)         //liga Relé 3
+            {
+              RL3_status = "ON";                           //atualiza status
+              digitalWrite(relay3, HIGH);                  //ativa saída
+              Serial.println(hora_atual);
+              
+            } //RL3 ON
+  else if(OFFhoraRL3 == hora_atual)   //desliga Relé 3 
+            {          
+              RL3_status = "OFF";                          //atualiza status
+              digitalWrite(relay3, LOW);                   //desativa saída
+              Serial.println(hora_atual);
+              
+            } //end else if RL3 OFF
+
+  if(ONhoraRL4 == hora_atual)         //liga Relé 4
+            {
+              RL4_status = "ON";                           //atualiza status
+              digitalWrite(relay4, HIGH);                  //ativa saída
+              Serial.println(hora_atual);
+              
+            } //RL4 ON
+  else if(OFFhoraRL4 == hora_atual)   //desliga Relé 4 
+            {          
+              RL4_status = "OFF";                          //atualiza status
+              digitalWrite(relay4, LOW);                   //desativa saída
+              Serial.println(hora_atual);
+              
+            } //end else if RL4 OFF
+  //delay(10000);
+  //Serial.println(ntp.getFormattedTime());
   relay_wifi();                                //chama função para controle dos relés por wifi
 
 
